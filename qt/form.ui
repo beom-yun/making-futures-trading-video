@@ -19,7 +19,7 @@
      <item>
       <layout class="QHBoxLayout" name="horizontalLayout_2">
        <item>
-        <widget class="QPushButton" name="btn_movie_open">
+        <widget class="QPushButton" name="btn_video_open">
          <property name="text">
           <string>원본 동영상 열기</string>
          </property>
@@ -157,7 +157,11 @@
       </layout>
      </item>
      <item>
-      <widget class="QTableWidget" name="table"/>
+      <widget class="QTableWidget" name="table">
+       <property name="showGrid">
+        <bool>false</bool>
+       </property>
+      </widget>
      </item>
     </layout>
    </item>
