@@ -36,8 +36,16 @@ def make_file_name(tr):
     return f"{tr['주문시간'].strftime('%y%m%d-%H%M%S')}-{tr['종목코드']}-{tr['구분']}-{tr['결과']}"
 
 
-def make_txt_clip(tr):
-    pass
+def make_txt_clip(video, tr):
+    time_s = tr['주문시간'].strftime('%H:%M:%S')
+    time_e = tr['청산시간'].strftime('%H:%M:%S')
+    txt = f"{tr['종목명']}\n{tr['구분']} {tr['결과']}\n진입 {time_s} {tr['체결가']}\n청산 {time_e} {tr['청산가']}"
+
+    # txt_clip = TextClip(txt, color='white', fontsize=24)
+    # txt_color = txt_clip.on_color(size=(video.w, txt_clip.h-10),
+    #                               color=(0, 0, 0), pos=(6, 'center'), col_opacity=0.6)
+    # return txt_color
+    return txt
 
 
 def edit_video(video, transactions, options):
@@ -63,11 +71,13 @@ def edit_video(video, transactions, options):
         time_clip_sec_start, time_clip_sec_end = get_clip_secs(
             time_video_start, (time_clip_from, time_clip_to))
 
-        sub_clip = clip.subclip(time_clip_sec_start, time_clip_sec_end)
-        # txt_clip = make_txt_clip(tr)
-        # result_video = CompositeVideoClip([sub_clip, txt_clip])
-
         file_name = make_file_name(tr)
-        # sub_clip.write_videofile(f'{file_name}.mp4')
+        sub_clip = clip.subclip(time_clip_sec_start, time_clip_sec_end)
+        # txt_clip = make_txt_clip(sub_clip, tr)
+        # print(txt_clip)
+        # print()
+        # result_video = CompositeVideoClip([sub_clip, txt_clip])
+        # result_video.write_videofile(f'{file_name}.mp4')
+        sub_clip.write_videofile(f'{file_name}.mp4')
 
     clip.close()
