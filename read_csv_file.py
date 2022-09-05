@@ -14,7 +14,7 @@ def read_csv_file(file):
                 print("'[4551] 해외선옵 주문체결상세' 확인")
                 return None
 
-        df.drop(columns=['주문번호', '체결번호', '종목코드', 'Unnamed: 6', "'주문가격/수량",
+        df.drop(columns=['주문번호', '체결번호', 'Unnamed: 6', "'주문가격/수량",
                          'LIMIT', 'STOP', '미체결', '상태', '종류', '원주문', '유효일', '체결시간'], inplace=True)
         df.rename(columns={"'체결가/수량": '체결가',
                   'Unnamed: 10': '수량'}, inplace=True)

@@ -11,7 +11,7 @@ form_class = uic.loadUiType('qt/form.ui')[0]
 
 class MyWindow(QWidget, form_class):
     def __init__(self):
-        self.table_header = ['선택', '종목명', '구분', '체결가',
+        self.table_header = ['선택', '종목코드', '종목명', '구분', '체결가',
                              '수량', '주문시간', '청산가', '청산시간', '통화', '거래소']
         self.video = None
         self.transactions = None
