@@ -43,7 +43,7 @@
         <item row="0" column="0">
          <layout class="QGridLayout" name="gridLayout">
           <item row="0" column="1">
-           <widget class="QLabel" name="label_movie_name">
+           <widget class="QLabel" name="label_video_name">
             <property name="text">
              <string/>
             </property>
@@ -64,7 +64,11 @@
            </widget>
           </item>
           <item row="1" column="1">
-           <widget class="QDateTimeEdit" name="dtEdit_movie"/>
+           <widget class="QDateTimeEdit" name="dtEdit_movie">
+            <property name="displayFormat">
+             <string>yyyy-MM-dd AP hh:mm:ss</string>
+            </property>
+           </widget>
           </item>
          </layout>
         </item>

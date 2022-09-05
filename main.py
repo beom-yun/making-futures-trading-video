@@ -2,7 +2,9 @@ import sys
 from PyQt5 import uic
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
+from edit_movie import *
 from read_csv_file import *
+from cal_date_time import *
 
 form_class = uic.loadUiType('qt/form.ui')[0]
 
@@ -11,6 +13,9 @@ class MyWindow(QWidget, form_class):
     def __init__(self):
         self.table_header = ['선택', '종목명', '구분', '체결가',
                              '수량', '주문시간', '청산가', '청산시간', '통화', '거래소']
+        self.video = None
+        self.transactions = None
+        self.check_boxes = []
 
         super().__init__()
         self.setupUi(self)
@@ -18,6 +23,7 @@ class MyWindow(QWidget, form_class):
 
         self.btn_video_open.clicked.connect(self.video_open)
         self.btn_csv_open.clicked.connect(self.csv_open)
+        self.btn_make.clicked.connect(self.make_videos)
 
     def init_ui(self, table_header):
         self.table.setColumnCount(len(table_header))
@@ -25,12 +31,18 @@ class MyWindow(QWidget, form_class):
 
     def video_open(self):
         file_name = self.file_open()
-        print('video file', file_name)
+        if not file_name:
+            return None
+        self.video = file_name
+        self.label_video_name.setText(str(file_name.split('/')[-1]))
+        self.dtEdit_movie.setDateTime(now())
 
     def csv_open(self):
         df = self.get_transactions()
-        if df:
-            self.show_table(df)
+        if not df:
+            return
+        self.transactions = df
+        self.show_table(df)
 
     def file_open(self):
         file = QFileDialog.getOpenFileName(self)
@@ -39,7 +51,7 @@ class MyWindow(QWidget, form_class):
     def get_transactions(self):
         file_name = self.file_open()
         if not file_name:
-            return
+            return None
         self.label_csv_name.setText(str(file_name.split('/')[-1]))
         return read_csv_file(file_name)
 
@@ -58,6 +70,7 @@ class MyWindow(QWidget, form_class):
             layoutCB.setContentsMargins(0, 0, 0, 0)
             cellWidget.setLayout(layoutCB)
             self.table.setCellWidget(i, 0, cellWidget)
+            self.check_boxes.append(check)
 
             # 1 ~ 열
             for j in range(1, len(self.table_header)):
@@ -65,6 +78,30 @@ class MyWindow(QWidget, form_class):
                 item.setTextAlignment(Qt.AlignCenter)
                 self.table.setItem(i, j, item)
         self.table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeToContents)
+
+    def make_videos(self):
+        if not self.video:
+            print('원본 동영상 파일 필요')
+            return
+        if not self.transactions:
+            print('체결내역 파일 필요')
+            return
+        options = self.get_options()
+
+        edit_video(self.video, self.transactions, options)
+        # for i, tr in enumerate(self.transactions):
+        #     if not options['check_boxes'][i]:
+        #         continue
+        #     cut_video(self.video, tr, options)
+
+    def get_options(self):
+        options = {
+            'prev_sec': int(self.spin_prev.text()),
+            'after_sec': int(self.spin_after.text()),
+            'start_time': self.dtEdit_movie.text(),
+            'check_boxes': [check_box.isChecked() for check_box in self.check_boxes]
+        }
+        return options
 
 
 if __name__ == "__main__":
