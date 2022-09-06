@@ -1,12 +1,19 @@
+import os
 import sys
 from PyQt5 import uic
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from edit_movie import *
 from read_csv_file import *
-from cal_date_time import *
 
-form_class = uic.loadUiType('qt/form.ui')[0]
+
+def resource_path(relative_path):
+    base_path = getattr(sys, '_MEIPASS', os.path.dirname(
+        os.path.abspath(__file__)))
+    return os.path.join(base_path, relative_path)
+
+
+form_class = uic.loadUiType(resource_path('form.ui'))[0]
 
 
 class MyWindow(QWidget, form_class):
@@ -28,6 +35,16 @@ class MyWindow(QWidget, form_class):
     def init_ui(self, table_header):
         self.table.setColumnCount(len(table_header))
         self.table.setHorizontalHeaderLabels(table_header)
+        self.table.horizontalHeader().sectionClicked.connect(self.select_clicked)
+
+    def select_clicked(self, n):
+        if n != 0:
+            return
+        b = True
+        for check_box in self.check_boxes:
+            b &= check_box.isChecked()
+        for check_box in self.check_boxes:
+            check_box.setChecked(False if b else True)
 
     def video_open(self):
         file_name = self.file_open()
@@ -89,10 +106,6 @@ class MyWindow(QWidget, form_class):
         options = self.get_options()
 
         edit_video(self.video, self.transactions, options)
-        # for i, tr in enumerate(self.transactions):
-        #     if not options['check_boxes'][i]:
-        #         continue
-        #     cut_video(self.video, tr, options)
 
     def get_options(self):
         options = {

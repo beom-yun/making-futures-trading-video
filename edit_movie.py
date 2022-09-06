@@ -1,5 +1,6 @@
-from moviepy.editor import *
+import os
 import datetime
+from moviepy.video.io.VideoFileClip import VideoFileClip
 
 
 def now():
@@ -40,44 +41,36 @@ def make_txt_clip(video, tr):
     time_s = tr['주문시간'].strftime('%H:%M:%S')
     time_e = tr['청산시간'].strftime('%H:%M:%S')
     txt = f"{tr['종목명']}\n{tr['구분']} {tr['결과']}\n진입 {time_s} {tr['체결가']}\n청산 {time_e} {tr['청산가']}"
-
-    # txt_clip = TextClip(txt, color='white', fontsize=24)
-    # txt_color = txt_clip.on_color(size=(video.w, txt_clip.h-10),
-    #                               color=(0, 0, 0), pos=(6, 'center'), col_opacity=0.6)
-    # return txt_color
     return txt
 
 
 def edit_video(video, transactions, options):
+    for tran in transactions:
+        formatter = '%y/%m/%d %H:%M:%S'
+        tran['주문시간'] = datetime.datetime.strptime(tran['주문시간'], formatter)
+        tran['청산시간'] = datetime.datetime.strptime(tran['청산시간'], formatter)
+
     clip = VideoFileClip(video)
 
     time_video_start, time_video_end = get_time_video(clip, options)
     folder_name = time_video_start.strftime('%y%m%d')
+    os.mkdir(f'./{folder_name}')
 
-    for i, tr in enumerate(transactions):
+    for i, tran in enumerate(transactions):
         if not options['check_boxes'][i]:
             continue
 
-        formatter = '%y/%m/%d %H:%M:%S'
-        tr['주문시간'] = datetime.datetime.strptime(tr['주문시간'], formatter)
-        tr['청산시간'] = datetime.datetime.strptime(tr['청산시간'], formatter)
-
-        if tr['주문시간'] > time_video_end or tr['청산시간'] < time_video_start:
+        if tran['주문시간'] > time_video_end or tran['청산시간'] < time_video_start:
             continue
 
         time_clip_from, time_clip_to = get_clip_time(
-            (time_video_start, time_video_end), (tr['주문시간'], tr['청산시간']), options)
+            (time_video_start, time_video_end), (tran['주문시간'], tran['청산시간']), options)
 
         time_clip_sec_start, time_clip_sec_end = get_clip_secs(
             time_video_start, (time_clip_from, time_clip_to))
 
-        file_name = make_file_name(tr)
+        file_name = make_file_name(tran)
         sub_clip = clip.subclip(time_clip_sec_start, time_clip_sec_end)
-        # txt_clip = make_txt_clip(sub_clip, tr)
-        # print(txt_clip)
-        # print()
-        # result_video = CompositeVideoClip([sub_clip, txt_clip])
-        # result_video.write_videofile(f'{file_name}.mp4')
-        sub_clip.write_videofile(f'{file_name}.mp4')
+        sub_clip.write_videofile(f'./{folder_name}/{file_name}.mp4')
 
     clip.close()
